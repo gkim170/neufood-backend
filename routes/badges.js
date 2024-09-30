@@ -74,7 +74,7 @@ router.put('/:badgeId', async (req, res) => {
         }
 
         // Send the updated badge object as response
-        res.json(badge);
+        res.status(202).json(badge);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -116,7 +116,7 @@ router.delete('/:badgeId', async (req, res) => {
         }
 
         // Send a success message as response
-        res.json({ message: 'Badge deleted successfully.' });
+        res.status(202).json({ message: 'Badge deleted successfully.' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
