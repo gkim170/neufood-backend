@@ -255,11 +255,6 @@ router.delete('/:uid/deleteBadge', async (req, res) => {
     }
 });
 
-
-
-
-
-
 // Function to generate a unique userId 
 async function generateUniqueUserId() {
     try {
@@ -275,3 +270,5 @@ async function generateUniqueUserId() {
         throw error;
     }
 }
+
+module.exports = router;
