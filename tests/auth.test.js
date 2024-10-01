@@ -25,13 +25,16 @@ beforeAll(async () => {
 
 // Before each test, create a mock user
 beforeEach(async () => {
-  await Users.deleteMany({});
+  //make sure that the clean slate is
+  await Users.deleteMany({ name: "Jane Doe" });
+  await Users.deleteMany({ name: "John Doe" });
   await Users.create(mockUser);
 });
 
 // Clean up the database after each test
 afterEach(async () => {
-  await Users.deleteMany({});
+  await Users.deleteMany({ name: "Jane Doe" });
+  await Users.deleteMany({ name: "John Doe" });
 });
 
 // Close the database connection after all tests

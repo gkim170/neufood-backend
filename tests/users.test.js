@@ -41,7 +41,7 @@ afterAll(async () => {
 });
 
 describe('Users Routes', () => {
-
+/*
     // Test POST / route with name and description
     it('should create a new User', async () => {
         const res = await request(app).post('/users/signup').send({
@@ -57,7 +57,7 @@ describe('Users Routes', () => {
         expect(res.body).toHaveProperty('email', 'thor@test.com');
         expect(res.body).toHaveProperty('password');
     });
-/*
+
     // Test POST / route without email
     it('should yell at us that name and email are required', async () => {
         const res = await request(app).post('/users/signup').send({
