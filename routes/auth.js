@@ -104,7 +104,7 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
   } catch (error) {
     res.status(500).json({ message: 'Google OAuth failed', error });
   }
-});ls
+});
 
 
 module.exports = router;
