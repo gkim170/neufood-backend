@@ -39,7 +39,7 @@ router.post('/register', async (req, res) => {
     const token = generateToken(newUser);
 
     // Respond with the token
-    res.status(201).json({ token, message: 'User registered successfully' });
+    res.status(201).json({ token, uid: newUser.uid, message: 'User registered successfully' });
 
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -67,7 +67,7 @@ router.post('/login', async (req, res) => {
     const token = generateToken(user);
 
     // Respond with the token
-    res.status(200).json({ token, message: 'Login successful' });
+    res.status(200).json({ token, uid: user.uid, message: 'Login successful' });
 
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
