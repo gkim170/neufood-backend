@@ -48,6 +48,34 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// User login route
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Find user by email
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate JWT token
+    const token = generateToken(user);
+
+    // Respond with the token
+    res.status(200).json({ token, uid: user.uid, message: 'Login successful' });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Google sign-up/sign-in route
 router.post('/google', async (req, res) => {
   const { token } = req.body;
