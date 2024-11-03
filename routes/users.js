@@ -272,7 +272,7 @@ router.get('/:uid/retrievePantries', async (req, res) => {
         const pantryIds = user.pantries.map(pantry => pantry.pantryId);
 
         // Send the pantryIds array as JSON response
-        res.status(200).json({ pantryIds });
+        res.status(200).json(pantryIds);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
