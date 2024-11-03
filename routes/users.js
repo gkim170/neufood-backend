@@ -255,6 +255,30 @@ router.delete('/:uid/deleteBadge', async (req, res) => {
     }
 });
 
+router.get('/:uid/retrievePantries', async (req, res) => {
+    try {
+
+        const { uid } = req.params;
+
+        // Find the user by UID
+        const user = await Users.findOne({ uid });
+
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        // Extract pantryIds from the user's pantries array
+        const pantryIds = user.pantries.map(pantry => pantry.pantryId);
+
+        // Send the pantryIds array as JSON response
+        res.status(200).json({ pantryIds });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Function to generate a unique userId 
 async function generateUniqueUserId() {
     try {

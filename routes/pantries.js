@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Pantries = require('../models/Pantries');
+const Users = require("../models/Users");
 const Counter = require('../models/Counter');
 
 //Note: Gave an example for the respective route, what we would have to send via the frontend in order to properly hit the route. 
@@ -37,6 +38,16 @@ curl -X POST -H "Content-Type: application/json" -d '{
 
         //save pantry to db
         const savedPantry = await pantry.save();
+
+        const uid = ownerId;
+        const user = await Users.findOne({ uid });
+
+        if (user) {
+            user.pantries.push({ pantryId });
+            await user.save();  // Save the user to persist the updated pantries array
+        } else {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
         // send saved pantry as response and 201 CREATED for POST
         res.status(201).json(savedPantry);
