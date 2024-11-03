@@ -4,6 +4,7 @@ const app = express();
 const allergiesRoutes = require("./routes/allergies");
 const badgesRoutes = require("./routes/badges");
 const pantriesRoutes = require("./routes/pantries");
+const usersRoutes = require("./routes/users");
 const dotenv = require('dotenv');
 const authRoutes = require("./routes/auth"); // Authentication routes
 const passport = require('passport');
@@ -75,5 +76,6 @@ app.use("/allergies", allergiesRoutes);
 app.use("/badges", badgesRoutes);
 app.use("/pantries", pantriesRoutes);
 app.use("/auth", authRoutes);
+app.use("/users", usersRoutes);
 
 module.exports = app;
