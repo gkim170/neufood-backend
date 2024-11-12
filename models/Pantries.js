@@ -5,6 +5,7 @@ const pantriesSchema = new mongoose.Schema({
     pantryId: String, // Id of the pantry
     name: String, // name of the pantry
     ownerId: String, // id of the owner to grab the name for the pantry card
+    imageSource: String, // name of image source corresponding to its pantry picture
 
     collaborators: [{ // array of collaborators added to the pantry -- just user ID
         uid: String,

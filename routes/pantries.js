@@ -32,6 +32,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
             pantryId: pantryId,
             name: name,
             ownerId: ownerId,
+            imageSource: imageSource,
             collaborators: [], //if null, initialize to empty array **** should always be null on creation / post
             ingredients: [], // same here, should be null regardless on post
         });
@@ -314,7 +315,7 @@ router.put('/:pantryId/modifyIngredient', async (req, res) => {
 
         const { pantryId } = req.params;
         const { modifiedIngredient } = req.body;
-
+        
         // Find the pantry by ID
         const pantry = await Pantries.findOne({ pantryId });
 
