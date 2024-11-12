@@ -12,12 +12,13 @@ router.post('/', async (req, res) => {
 /*keep in mind when sending info collaborators/ingredients structure is an array of JSON in proper structure. can be null
 curl -X POST -H "Content-Type: application/json" -d '{
                 "name": "ThorPantry",
+                "imageSource": "Apartment",
                 "ownerId": "12345"
 }' http://localhost:8080/pantries/
 */
         //extract name and description from request body. Format above. Null if not specified in order to not crash, but name and ownerId are required in future
         // edit: no need to have collaborators or ingredients in the post route, pantries will be made before ingredients are added
-        const { name, ownerId } = req.body; 
+        const { name, ownerId, imageSource } = req.body; 
 
         //check if provided name and ownerId, need those to continue
         if (!name || !ownerId) {
