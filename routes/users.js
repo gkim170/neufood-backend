@@ -72,7 +72,7 @@ router.put('/:uid/changeName', async (req, res) => {
         }
 
         // Send the updated user object as response
-        res.json(user);
+        res.status(202).json(user);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -103,7 +103,7 @@ router.put('/:uid/changeEmail', async (req, res) => {
         }
 
         // Send the updated user object as response
-        res.json(user);
+        res.status(202).json(user);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -134,7 +134,7 @@ router.put('/:uid/changePassword', async (req, res) => {
         }
 
         // Send the updated user object as response
-        res.json(user);
+        res.status(202).json(user);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -158,7 +158,7 @@ router.get('/:uid', async (req, res) => {
         }
 
         //send user as JSON object as response
-        res.json(user);
+        res.status(200).json(user);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error fetching from pantry' });
@@ -179,7 +179,7 @@ router.delete('/:uid', async (req, res) => {
         }
 
         // Send a success message as response
-        res.json({ message: 'User deleted successfully.' });
+        res.status(202).json({ message: 'User deleted successfully.' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -215,7 +215,7 @@ router.put('/:uid/addBadge', async (req, res) => {
         const updatedUser = await user.save();
 
         // send updated user as response
-        res.status(201).json(updatedUser);
+        res.status(202).json(updatedUser);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
@@ -248,17 +248,36 @@ router.delete('/:uid/deleteBadge', async (req, res) => {
         }
 
         // send updated user update params as response
-        res.status(201).json(user);
+        res.status(202).json(user);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
+router.get('/:uid/retrievePantries', async (req, res) => {
+    try {
 
+        const { uid } = req.params;
 
+        // Find the user by UID
+        const user = await Users.findOne({ uid });
 
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
 
+        // Extract pantryIds from the user's pantries array
+        const pantryIds = user.pantries.map(pantry => pantry.pantryId);
+
+        // Send the pantryIds array as JSON response
+        res.status(200).json(pantryIds);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 // Function to generate a unique userId 
 async function generateUniqueUserId() {
@@ -275,3 +294,5 @@ async function generateUniqueUserId() {
         throw error;
     }
 }
+
+module.exports = router;

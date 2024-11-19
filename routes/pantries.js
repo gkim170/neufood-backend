@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Pantries = require('../models/Pantries');
+const Users = require("../models/Users");
 const Counter = require('../models/Counter');
 
 //Note: Gave an example for the respective route, what we would have to send via the frontend in order to properly hit the route. 
@@ -11,12 +12,13 @@ router.post('/', async (req, res) => {
 /*keep in mind when sending info collaborators/ingredients structure is an array of JSON in proper structure. can be null
 curl -X POST -H "Content-Type: application/json" -d '{
                 "name": "ThorPantry",
+                "imageSource": "Apartment",
                 "ownerId": "12345"
 }' http://localhost:8080/pantries/
 */
         //extract name and description from request body. Format above. Null if not specified in order to not crash, but name and ownerId are required in future
         // edit: no need to have collaborators or ingredients in the post route, pantries will be made before ingredients are added
-        const { name, ownerId } = req.body; 
+        const { name, ownerId, imageSource } = req.body; 
 
         //check if provided name and ownerId, need those to continue
         if (!name || !ownerId) {
@@ -31,12 +33,23 @@ curl -X POST -H "Content-Type: application/json" -d '{
             pantryId: pantryId,
             name: name,
             ownerId: ownerId,
+            imageSource: imageSource,
             collaborators: [], //if null, initialize to empty array **** should always be null on creation / post
             ingredients: [], // same here, should be null regardless on post
         });
 
         //save pantry to db
         const savedPantry = await pantry.save();
+
+        const uid = ownerId;
+        const user = await Users.findOne({ uid });
+
+        if (user) {
+            user.pantries.push({ pantryId });
+            await user.save();  // Save the user to persist the updated pantries array
+        } else {
+            return res.status(404).json({ error: 'User not found' });
+        }
 
         // send saved pantry as response and 201 CREATED for POST
         res.status(201).json(savedPantry);
@@ -303,7 +316,7 @@ router.put('/:pantryId/modifyIngredient', async (req, res) => {
 
         const { pantryId } = req.params;
         const { modifiedIngredient } = req.body;
-
+        
         // Find the pantry by ID
         const pantry = await Pantries.findOne({ pantryId });
 

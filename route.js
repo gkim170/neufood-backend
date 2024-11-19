@@ -4,16 +4,17 @@ const app = express();
 const allergiesRoutes = require("./routes/allergies");
 const badgesRoutes = require("./routes/badges");
 const pantriesRoutes = require("./routes/pantries");
+const usersRoutes = require("./routes/users");
 const dotenv = require('dotenv');
-const authRoutes = require("./routes/auth"); // New authentication routes
-const passport = require('passport'); // For OAuth
+const authRoutes = require("./routes/auth"); // Authentication routes
+const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const Users = require('./models/Users'); // Need users schema here
+const Users = require('./models/Users');
 dotenv.config();
 
 // Check if MongoDB URI is provided
 if (!process.env.MONGODB_URI) {
-  console.error('MongoDB URI not found. Please make sure to set the MONGODB_URI environment variable.');
+  console.error('MongoDB URI not found. Please set it in the environment.');
   process.exit(1);
 }
 
@@ -23,7 +24,7 @@ mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
 mongoose.connection.on('error', (err) => {
   console.error(err);
-  console.log('MongoDB connection error. Please make sure MongoDB is running.');
+  console.log('MongoDB connection error.');
   process.exit();
 });
 
@@ -31,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Enable CORS
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -53,7 +54,7 @@ async (accessToken, refreshToken, profile, done) => {
     if (!user) {
       // Create a new user if they don't exist
       user = new Users({
-        uid: profile.id, // Use Google UID
+        uid: profile.id,
         name: profile.displayName,
         email: profile.emails[0].value,
         password: '', // No password for Google OAuth users
@@ -61,21 +62,20 @@ async (accessToken, refreshToken, profile, done) => {
       await user.save();
     }
 
-    done(null, user); // Return the user object
+    done(null, user);
   } catch (error) {
-    done(error, false); // Return an error if something goes wrong
+    done(error, false);
   }
-}
-));
+}));
 
 // Initialize Passport for OAuth
 app.use(passport.initialize());
 
-// Mount the routes
+// Mount routes
 app.use("/allergies", allergiesRoutes);
 app.use("/badges", badgesRoutes);
 app.use("/pantries", pantriesRoutes);
-app.use("/auth", authRoutes); // Mount the authentication routes
+app.use("/auth", authRoutes);
+app.use("/users", usersRoutes);
 
 module.exports = app;
-

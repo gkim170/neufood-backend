@@ -2,15 +2,17 @@ const express = require('express');
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Users = require('../models/Users'); // Import the Users model
+const Users = require('../models/Users');
 const router = express.Router();
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Helper function to generate JWT token
 const generateToken = (user) => {
   return jwt.sign({ uid: user.uid }, process.env.JWT_SECRET, { expiresIn: '1h' });
 };
 
-// User registration route
+// User registration route (traditional)
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -27,7 +29,7 @@ router.post('/register', async (req, res) => {
 
     // Create a new user
     const newUser = new Users({
-      uid: `user-${Date.now()}`, // Generate a unique user ID (you can customize this)
+      uid: `user-${Date.now()}`, // Unique user ID
       name,
       email,
       password: hashedPassword, // Store the hashed password
@@ -39,7 +41,7 @@ router.post('/register', async (req, res) => {
     const token = generateToken(newUser);
 
     // Respond with the token
-    res.status(201).json({ token, message: 'User registered successfully' });
+    res.status(201).json({ token, uid: newUser.uid, message: 'User registered successfully' });
 
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -67,44 +69,46 @@ router.post('/login', async (req, res) => {
     const token = generateToken(user);
 
     // Respond with the token
-    res.status(200).json({ token, message: 'Login successful' });
-
+    res.status(200).json({ token, uid: user.uid, message: 'Login successful' });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Google OAuth route
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+// Google sign-up/sign-in route
+router.post('/google', async (req, res) => {
+  const { token } = req.body;
 
-// Google OAuth callback route
-router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login' }), async (req, res) => {
   try {
-    const { id, displayName, emails } = req.user;
+    // Verify the ID token
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-    // Check if the user already exists
-    let user = await Users.findOne({ email: emails[0].value });
-    
+    const payload = ticket.getPayload();
+    const { sub: googleId, name, email } = payload;
+
+    let user = await Users.findOne({ email });
+
     if (!user) {
       // Create a new user if they don't exist
       user = new Users({
-        uid: id, // Use Google's unique user ID
-        name: displayName,
-        email: emails[0].value,
+        uid: googleId,
+        name,
+        email,
         password: '', // No password for Google OAuth users
       });
       await user.save();
     }
 
-    // Generate JWT token
-    const token = generateToken(user);
-
-    // Redirect with token (or handle it via API response for an SPA)
-    res.redirect(`https://your-frontend.com?token=${token}`);
+    const jwtToken = generateToken(user);
+    res.status(200).json({ token: jwtToken, uid: user.uid, message: 'Google OAuth successful' });
   } catch (error) {
-    res.status(500).json({ message: 'Google OAuth failed', error });
+    console.error('Google sign-in error:', error);
+    res.status(500).json({ message: 'Google sign-in failed', error });
   }
-});ls
-
+});
 
 module.exports = router;
