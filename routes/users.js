@@ -255,6 +255,75 @@ router.delete('/:uid/deleteBadge', async (req, res) => {
     }
 });
 
+// PUT route to add an allergy or multiple allergies to the allergy array
+router.put('/:uid/addAllergy', async (req, res) => {
+    try {
+
+        const { uid } = req.params;
+        const { allergies } = req.body;
+
+        //find user by uid
+        const user = await Pantries.findOne(
+            { uid }
+        );
+
+        //check if user exists
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.'});
+        }
+
+        //check if the allergies parameter has any value
+        if (!allergies) {
+            return res.status(404).json({ error: 'Allergy field must not be empty.'});
+        }
+
+        //append the allergies object(s) to the allergies array
+        user.allergies.push(...allergies);
+
+        // save the updated user profile
+        const updatedUser = await user.save();
+
+        // send updated user as response
+        res.status(202).json(updatedUser);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// DELETE route to delete an allergy or allergies
+router.delete('/:uid/deleteAllergy', async (req, res) => {
+    try {
+
+        const { uid } = req.params;
+        const { badges } = req.body ? req.body : null;
+
+        // find user by uid
+        const user = await Users.updateOne(
+            { uid },
+            // use $pull to remove elements matching any name in allergies array
+            { $pull: { allergies: { allergyId: { $in: allergies }}}}, // may be incorrect because of dual element, must test
+            { new: true}
+        );
+
+        //check if user exists
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.'});
+        }
+
+        //check if exists
+        if (!allergies) {
+            return res.status(404).json({ error: 'Allergies field is required.'});
+        }
+
+        // send updated user update params as response
+        res.status(202).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 router.get('/:uid/retrievePantries', async (req, res) => {
     try {
 
