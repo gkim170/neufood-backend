@@ -87,9 +87,15 @@ $> nodemon index.js
 $> node index.js
 ```
 
-3. The server will be hosted at the displayed address in your terminal
+3. To run the unit tests
 
-4. To stop the app from running, press `Ctrl-C` in your terminal instance
+```bash
+$> node index.js
+```
+
+5. The server will be hosted at the displayed address in your terminal
+
+6. To stop the app from running, press `Ctrl-C` in your terminal instance
 
 #### Deployment
 
